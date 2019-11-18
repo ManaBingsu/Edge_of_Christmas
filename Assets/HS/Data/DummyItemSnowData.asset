@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a675ecf9db88147bddc977db4788b5, type: 3}
+  m_Name: DummyItemSnowData
+  m_EditorClassIdentifier: 
+  type: 0
+  crowdControl: 2
+  index: 0
+  script: "\uB208\uB369\uC774 \uC785\uB2C8\uB2E4.\n\uB9DE\uC558\uC744 \uB54C \uC548
+    \uC544\uD30C \uBCF4\uC774\uC9C0\uB9CC \n\uC544\uD508 \uAC83\uC774 \uB9E4\uB825\uC785\uB2C8\uB2E4."
+  icon: {fileID: 21300000, guid: fd33c2636871e91449fdb998668e600e, type: 3}
+  moveSpeed: 8
+  ccTime: 0.65
+  ccPower: 0
