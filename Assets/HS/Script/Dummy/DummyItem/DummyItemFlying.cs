@@ -65,7 +65,7 @@ public class DummyItemFlying : MonoBehaviour
         this.team = player.playerData.team;
         this.direction = player.direction;
         this.itemData = data;
-        initialPos = player.transform.position;
+        initialPos = new Vector2(player.transform.position.x, player.transform.position.y + 0.5f);
         sprRend.sprite = data.Icon;
         transform.position = initialPos;
         state = State.Flying;

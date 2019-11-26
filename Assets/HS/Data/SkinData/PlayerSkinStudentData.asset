@@ -14,5 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   index: 2
   skinName: "\uACF5\uB300\uC0DD"
-  script: "-\uD5C8\uC57D\uD568\n-\uACE0\uC9C8\uC801 \uC190\uBAA9 \uBD80\uC0C1"
+  story: "\uC544\uBB34\uAC83\uB3C4 \uBAA8\uB974\uB294 \uACF5\uB300\uC0DD\uC785\uB2C8\uB2E4.\n\uADF8\uB7EC\uB098
+    \uB108\uBCF4\uB2E8 \uC798 \uC555\uB2C8\uB2E4."
+  abilityScript: "-\uC804\uACF5 \uC11C\uC801 \uC704\uC5D0\uC11C \uC218\uBA74\uD655\uB960
+    \uC99D\uAC00"
   icon: {fileID: 21300000, guid: 470ffa30bc513af47a5d081c10c94b70, type: 3}

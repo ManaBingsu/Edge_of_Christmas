@@ -20,6 +20,7 @@ public class UIGift : MonoBehaviour
     [SerializeField]
     private Color onColor;
 
+
     // 전광판 온 오프!
     [SerializeField]
     private bool isOn;
@@ -49,6 +50,7 @@ public class UIGift : MonoBehaviour
         giftImg = GetComponent<Image>();
         // 초기 색 지정 - 꺼진 색
         giftImg.color = offColor;
+
     }
 
     // 선물을 얻음

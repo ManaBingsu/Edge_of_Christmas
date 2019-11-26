@@ -11,6 +11,9 @@ public class UIItemControl : MonoBehaviour
     [SerializeField]
     private Text[] itemCountArray = new Text[2];
 
+    [SerializeField]
+    private Sprite nullSpr;
+
     private void Start()
     {
         for (int i = 0; i < 2; i++)
@@ -22,7 +25,7 @@ public class UIItemControl : MonoBehaviour
         int targetIndex = playerData.team > 0 ? 1 : 0;
         if(item.MyItem == null)
         {
-            itemButtonArray[targetIndex].image.sprite = null;
+            itemButtonArray[targetIndex].image.sprite = nullSpr;
             itemCountArray[targetIndex].text = "";
         }
         else

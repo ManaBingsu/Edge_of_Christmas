@@ -7,8 +7,9 @@ public abstract class DummyPlayerParent : MonoBehaviour
     public delegate void GetItemEvent(DummyPlayerData playerData, DummyInventory inventoryData);
     public event GetItemEvent EvGetItem;
 
-    public enum State { idle, walk, CC };
+    public enum State { Idle, Walk, CC };
     public State state;
+    Coroutine stateCoroutine;
 
     public bool isRage;
 
@@ -43,6 +44,10 @@ public abstract class DummyPlayerParent : MonoBehaviour
     
     // 아이템 보유 공간
     public DummyInventory inventory;
+
+    // 이펙트
+    [SerializeField]
+    private Animator efcAnimator;
 
     // 아이템 리스트 참조
     [SerializeField]
@@ -106,14 +111,6 @@ public abstract class DummyPlayerParent : MonoBehaviour
         }
     }
 
-    void OnEnable()
-    {
-        state = State.walk;
-        StartCoroutine(StateManager());
-        StartCoroutine(FSM());
-        direction = (Direction)((int)playerData.team * -1);
-    }
-
     protected virtual void Awake()
     {
         playerData = Instantiate(playerData) as DummyPlayerData;
@@ -126,10 +123,17 @@ public abstract class DummyPlayerParent : MonoBehaviour
     {
         // 나중에 바꿀 것
         StartCoroutine(ChargingRage());
+
+        StartCoroutine(KeyManager());
+        StartCoroutine(FSM());
+        direction = (Direction)((int)playerData.team * -1);
     }
 
     public void UseItem()
     {
+        if (isRage)
+            return;
+
         if (inventory.MyItem == null)
             return;
 
@@ -151,24 +155,51 @@ public abstract class DummyPlayerParent : MonoBehaviour
         {
             switch(state)
             {
-                case State.idle:
-
+                case State.Idle:
+                    yield return stateCoroutine = StartCoroutine(Idle());
                     break;
-                case State.walk:
-                    Move();
+                case State.Walk:
+                    yield return stateCoroutine = StartCoroutine(Walk());
                     break;
                 case State.CC:
-                    if (knockBackCoroutine == null && stunCoroutine == null)
-                    {
-                        state = State.walk;
-                    }
+                    yield return stateCoroutine = StartCoroutine(CC());
                     break;
             }
             yield return null;
         }
     }
 
-    IEnumerator StateManager()
+    IEnumerator Idle()
+    {
+        while (state == State.Idle)
+        {
+            yield return null;
+        }
+    }
+
+    IEnumerator Walk()
+    {
+        while (state == State.Walk)
+        {
+            Move();
+            yield return null;
+        }
+    }
+
+    IEnumerator CC()
+    {
+        while (true)
+        {
+            if (knockBackCoroutine == null && stunCoroutine == null)
+            {
+                state = State.Walk;
+                yield break;
+            }
+            yield return null;
+        }
+    }
+
+    IEnumerator KeyManager()
     {
         while(true)
         {
@@ -185,6 +216,11 @@ public abstract class DummyPlayerParent : MonoBehaviour
                     {
                         Jump();
                     }
+
+                    if (Input.GetKeyDown(KeyCode.X))
+                    {
+                        UseItem();
+                    }
                 }
                 else if (playerData.team == DummyPlayerData.Team.Right)
                 {
@@ -196,6 +232,11 @@ public abstract class DummyPlayerParent : MonoBehaviour
                     if (Input.GetKeyDown(KeyCode.Slash))
                     {
                         Jump();
+                    }
+
+                    if (Input.GetKeyDown(KeyCode.Period))
+                    {
+                        UseItem();
                     }
                 }
             }
@@ -248,6 +289,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
     {
         // 분노모드 취소
         playerData.Rage -= 999;
+        efcAnimator.gameObject.SetActive(true);
 
         float time = 0f;
         while(time < ccTime)
@@ -256,6 +298,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
             yield return null;
         }
+        efcAnimator.SetTrigger("TrgEnd");
         stunCoroutine = null;
     }
 
@@ -264,6 +307,13 @@ public abstract class DummyPlayerParent : MonoBehaviour
         WaitForSeconds waitTime = new WaitForSeconds(1.0f);
         while(true)
         {
+            // 게임 진행 중 일때만 분노 참
+            if(BattleManager.battleManager.gameState != BattleManager.GameState.Processing)
+            {
+                yield return null;
+                continue;
+            }
+
             if (!isRage)
                 playerData.Rage += playerData.RageChargingPoint;
             yield return waitTime;
@@ -306,6 +356,9 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     public void Rage()
     {
+        if (state == State.CC)
+            return;
+
         if(!isRage && playerData.Rage == playerData.MaxRage)
         {
             isRage = true;
@@ -375,7 +428,7 @@ public struct DummyInventory
             }
             else
             {
-                num++;
+                Num++;
             }
         }
     }
@@ -392,6 +445,10 @@ public struct DummyInventory
             {
                 num = 0;
                 MyItem = null;
+                return;
+            }
+            else if(value > 5)
+            {
                 return;
             }
             num = value;

@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class DummyItemGenerator : MonoBehaviour
 {
+    public enum State { Idle, Generating }
+    public State state;
+
+    Coroutine stateCoroutine;
+
     // pooling 용 인덱스 키값
     [SerializeField]
     private int key;
@@ -34,6 +39,12 @@ public class DummyItemGenerator : MonoBehaviour
     private void Awake()
     {
         SetItemList();
+        DummySystemManager.systemManager.itemGenerator = this;
+    }
+
+    private void Start()
+    {
+        StartCoroutine(FSM());
     }
 
     void SetItemList()
@@ -43,16 +54,36 @@ public class DummyItemGenerator : MonoBehaviour
             itemPoolingList.Add(transform.GetChild(i).GetComponent<DummyItemFalling>());
         }
     }
-    private void Start()
+
+    IEnumerator FSM()
     {
-        StartCoroutine(ItemDispencer());
+        while(true)
+        {
+            switch(state)
+            {
+                case State.Idle:
+                    yield return stateCoroutine = StartCoroutine(Idle());
+                    break;
+                case State.Generating:
+                    yield return stateCoroutine = StartCoroutine(Generating());
+                    break;
+            }
+        }
+    }
+
+    IEnumerator Idle()
+    {
+        while (state == State.Idle)
+        {
+            yield return null;
+        }
     }
 
     // Falling Item을 랜덤으로 뿌립니다.
-    IEnumerator ItemDispencer()
+    IEnumerator Generating()
     {
         WaitForSeconds waitTime = new WaitForSeconds(Random.Range(averageTime - timeRange, averageTime + timeRange));
-        while(true)
+        while(state == State.Generating)
         {
             float xPos = Random.Range(-xRange, xRange);
             int probability = Random.Range(0, 100);

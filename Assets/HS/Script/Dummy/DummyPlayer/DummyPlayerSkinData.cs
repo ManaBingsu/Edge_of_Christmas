@@ -15,8 +15,13 @@ public class DummyPlayerSkinData : ScriptableObject
 
     [TextArea]
     [SerializeField]
-    private string script;
-    public string Script { get { return script; } }
+    private string story;
+    public string Story { get { return story; } }
+
+    [TextArea]
+    [SerializeField]
+    private string abilityScript;
+    public string AbilityScript { get { return abilityScript; } }
 
     [SerializeField]
     private Sprite icon;

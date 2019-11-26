@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class UIGoIngameScene : MonoBehaviour
+public class UISceneMove : MonoBehaviour
 {
     [SerializeField]
     private Image fadeOutBackground;
@@ -14,13 +14,19 @@ public class UIGoIngameScene : MonoBehaviour
     public void ClickStart()
     {
         if (startCoroutine == null)
-            startCoroutine = StartCoroutine(LoadInGameScene());
+            startCoroutine = StartCoroutine(LoadInGameScene("HSScene"));
     }
 
-    IEnumerator LoadInGameScene()
+    public void ClickLobby()
+    {
+        if (startCoroutine == null)
+            startCoroutine = StartCoroutine(LoadInGameScene("HSLobbyScene"));
+    }
+
+    IEnumerator LoadInGameScene(string sceneName)
     {
         yield return null;
-        AsyncOperation op = SceneManager.LoadSceneAsync("HSScene");
+        AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
         op.allowSceneActivation = false;
 
         fadeOutBackground.gameObject.SetActive(true);
@@ -32,7 +38,7 @@ public class UIGoIngameScene : MonoBehaviour
         float progress = 0f;
         while(progress < 1f)
         {
-            progress += Time.deltaTime;
+            progress += Time.deltaTime * 1.5f;
 
             fadeOutBackground.color = Color.Lerp(startColor, endColor, progress);
 

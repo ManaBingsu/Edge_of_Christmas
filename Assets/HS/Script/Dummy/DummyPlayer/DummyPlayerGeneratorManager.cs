@@ -6,6 +6,8 @@ public class DummyPlayerGeneratorManager : MonoBehaviour
 {
     public List<DummyPlayerGenerator> playerGeneratorList;
 
+    public List<DummyPlayerSkinData> skinDataList;
+
     private void Awake()
     {
         GeneratePlayer();
