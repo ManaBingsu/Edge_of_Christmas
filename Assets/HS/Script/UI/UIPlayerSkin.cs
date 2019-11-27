@@ -17,11 +17,12 @@ public class UIPlayerSkin : MonoBehaviour
     {
         for(int i = 0; i < 2; i++)
         {
-            skinIconUI[i].index = skinData[0].Index;
-            skinIconUI[i].story.text = skinData[0].Story;
-            skinIconUI[i].abilityScript.text = skinData[0].AbilityScript;
-            skinIconUI[i].icon.sprite = skinData[0].Icon;
-            skinIconUI[i].skinName.text = skinData[0].SkinName;
+            int idx = DummySystemManager.systemManager.playerSkinIndexArray[i];
+            skinIconUI[i].index = skinData[idx].Index;
+            skinIconUI[i].story.text = skinData[idx].Story;
+            skinIconUI[i].abilityScript.text = skinData[idx].AbilityScript;
+            skinIconUI[i].icon.sprite = skinData[idx].Icon;
+            skinIconUI[i].skinName.text = skinData[idx].SkinName;
         }
     }
 

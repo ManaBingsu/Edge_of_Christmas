@@ -59,12 +59,12 @@ public class InputManager : MonoBehaviour
                     float rad = Quaternion.FromToRotation(Vector3.up, ddir).eulerAngles.z;
                     float distance = Vector2.Distance(movedTouch.startPos, movedTouch.endPos);
 
-                    if(movedTouch.timer > 0.05f && movedTouch.isAct == false)
+                    if(movedTouch.timer > 0.03f && movedTouch.isAct == false)
                     {
                         movedTouch.isAct = true;
-                        if (rad > 320 || rad < 40)
+                        if (rad > 315 || rad < 45)
                         {
-                            if (distance > 80)
+                            if (distance > 50)
                             {
                                 DummySystemManager.systemManager.playerList[movedTouch.playerIndex].Jump();
                             }

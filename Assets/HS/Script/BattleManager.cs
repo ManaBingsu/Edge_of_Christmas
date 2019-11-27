@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleManager : MonoBehaviour
 {
@@ -21,6 +22,10 @@ public class BattleManager : MonoBehaviour
     [SerializeField]
     private UIGameOverPanel gameOverPanel;
 
+    // 게임 시작 타이머
+    [SerializeField]
+    private Text TimerText;
+
 
     private void Awake()
     {
@@ -32,7 +37,21 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
+        StartCoroutine(StartTimer());
         StartCoroutine(FSM());
+    }
+
+
+    IEnumerator StartTimer()
+    {
+        float time = 4f;
+        while(time-- > 1f)
+        {
+            TimerText.text = time.ToString();
+            yield return new WaitForSeconds(1.0f);
+        }
+        TimerText.gameObject.SetActive(false);
+        gameState = GameState.Processing;
     }
 
     IEnumerator FSM()

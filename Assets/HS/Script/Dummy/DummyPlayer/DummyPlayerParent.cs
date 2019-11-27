@@ -27,14 +27,12 @@ public abstract class DummyPlayerParent : MonoBehaviour
     Coroutine stunCoroutine;
     // 행동했을 때 마커 반짝반짝
     Coroutine markerCoroutine;
-    [SerializeField]
-    private SpriteRenderer markerSpr;
+
     [SerializeField]
     private Color onColor;
     [SerializeField]
     private Color offColor;
 
-    [SerializeField]
     private Rigidbody2D rb2D;
 
     public enum Direction { left = -1, right = 1 };
@@ -45,7 +43,19 @@ public abstract class DummyPlayerParent : MonoBehaviour
     // 아이템 보유 공간
     public DummyInventory inventory;
 
-    // 이펙트
+    // 플레이어 애니메이터
+    private Animator anim;
+    // 플레이어 렌더러
+    private SpriteRenderer sprRend;
+
+    [Space(10)]
+    [Header("Must Reference")]
+    [SerializeField]
+    private SpriteRenderer markerSpr;
+    // 분노 이펙트 오브젝트
+    [SerializeField]
+    private GameObject rageFire;
+    // 이펙트 애니메이터
     [SerializeField]
     private Animator efcAnimator;
 
@@ -115,11 +125,12 @@ public abstract class DummyPlayerParent : MonoBehaviour
     {
         playerData = Instantiate(playerData) as DummyPlayerData;
         rb2D = GetComponent<Rigidbody2D>();
-        markerSpr = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
+        sprRend = GetComponent<SpriteRenderer>();
         bonusSpeed = 1;
     }
 
-    private void Start()
+    protected virtual void Start()
     {
         // 나중에 바꿀 것
         StartCoroutine(ChargingRage());
@@ -127,6 +138,21 @@ public abstract class DummyPlayerParent : MonoBehaviour
         StartCoroutine(KeyManager());
         StartCoroutine(FSM());
         direction = (Direction)((int)playerData.team * -1);
+        // 처음 방향전환
+        sprRend.flipX = direction == Direction.left ? false : true;
+    }
+
+    protected virtual void Update()
+    {
+        if(transform.position.y < -5f)
+        {
+            if (BattleManager.battleManager.gameState != BattleManager.GameState.GameOver)
+            {
+                BattleManager.battleManager.gameState = BattleManager.GameState.GameOver;
+                BattleManager.battleManager.winnerIndex = (int)playerData.team == -1 ? 1 : 0;
+            }
+            gameObject.SetActive(false);
+        }
     }
 
     public void UseItem()
@@ -182,8 +208,13 @@ public abstract class DummyPlayerParent : MonoBehaviour
         while (state == State.Walk)
         {
             Move();
+
+            sprRend.flipX = direction == Direction.left ? false : true;
+
+            anim.SetBool("isWalk", true);
             yield return null;
         }
+        anim.SetBool("isWalk", false);
     }
 
     IEnumerator CC()
@@ -252,6 +283,8 @@ public abstract class DummyPlayerParent : MonoBehaviour
             state = State.CC;
             if (data.itemData.crowdControl == DummyItemData.CrowdControl.KnockBack)
             {
+                playerData.Rage += 20;
+
                 if (knockBackCoroutine != null)
                     knockBackCoroutine = null;
                 knockBackCoroutine = StartCoroutine(KnockBack(data.direction, data.itemData.CCTime, data.itemData.CCPower));
@@ -336,6 +369,8 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     public void Jump()
     {
+        if (state == State.Idle)
+            return;
 
         if (!isGrounded)
             return;
@@ -377,7 +412,8 @@ public abstract class DummyPlayerParent : MonoBehaviour
     IEnumerator RageMode()
     {
         bonusSpeed *= playerData.RageBonusSpeed;
-
+        rageFire.SetActive(true);
+        Debug.Log(rageFire.activeSelf);
         float time = 0f;
 
         while (playerData.Rage > 0)
@@ -390,6 +426,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
             }
             yield return null;
         }
+        rageFire.SetActive(false);
         isRage = false;
         bonusSpeed /= playerData.RageBonusSpeed;
     }

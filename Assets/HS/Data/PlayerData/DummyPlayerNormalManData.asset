@@ -17,7 +17,7 @@ MonoBehaviour:
   gift: 0
   rage: 20
   maxRage: 100
-  rageChargingPoint: 10
+  rageChargingPoint: 5
   moveSpeed: 4
   rageBonusSpeed: 2.5
   ragePower: 15

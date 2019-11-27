@@ -8,6 +8,7 @@ public class DummyPlayerData : ScriptableObject
     public delegate void TeamEventHandler(Team t);
     public event TeamEventHandler EvGift;
     public delegate void EventHandler();
+    public event TeamEventHandler EvVictory;
 
     public enum Team { Left = -1, Right = 1 }
     public Team team;
@@ -28,11 +29,22 @@ public class DummyPlayerData : ScriptableObject
                 return;
             }
 
-            if (value > maxGift)
+            // 승리 시
+            if (value >= maxGift)
+            {
+                gift = maxGift;
+                EvGift?.Invoke(team);
+                if(BattleManager.battleManager.gameState != BattleManager.GameState.GameOver)
+                {
+                    BattleManager.battleManager.gameState = BattleManager.GameState.GameOver;
+                    BattleManager.battleManager.winnerIndex = (int)team == -1 ? 0 : 1;
+                }
+                EvVictory?.Invoke(team);
                 return;
-
+            }
             gift = value;
             EvGift?.Invoke(team);
+
         }
     }
 

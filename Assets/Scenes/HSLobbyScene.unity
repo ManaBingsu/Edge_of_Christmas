@@ -2396,8 +2396,8 @@ MonoBehaviour:
   key: 0000000000000000
   skinData:
   - {fileID: 11400000, guid: 6808c3036d2b56348826d0ed435b1fde, type: 2}
-  - {fileID: 11400000, guid: faf40365ac3c9db479bab43b8938c0e5, type: 2}
-  - {fileID: 11400000, guid: 9592c7581852267498663de8de80b56f, type: 2}
+  - {fileID: 11400000, guid: 6468405088a861a4a941471669e8a36e, type: 2}
+  - {fileID: 11400000, guid: 41250bedd06250a41bbc296fd4e03264, type: 2}
 --- !u!1 &666210709
 GameObject:
   m_ObjectHideFlags: 0
