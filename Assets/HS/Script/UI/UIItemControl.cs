@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UIItemControl : MonoBehaviour
 {
     [SerializeField]
-    private Button[] itemButtonArray = new Button[2];
+    private Image[] itemButtonArray = new Image[2];
 
     [SerializeField]
     private Text[] itemCountArray = new Text[2];
@@ -25,12 +25,12 @@ public class UIItemControl : MonoBehaviour
         int targetIndex = playerData.team > 0 ? 1 : 0;
         if(item.MyItem == null)
         {
-            itemButtonArray[targetIndex].image.sprite = nullSpr;
+            itemButtonArray[targetIndex].sprite = nullSpr;
             itemCountArray[targetIndex].text = "";
         }
         else
         {
-            itemButtonArray[targetIndex].image.sprite = item.MyItem.itemData.Icon;
+            itemButtonArray[targetIndex].sprite = item.MyItem.itemData.Icon;
             itemCountArray[targetIndex].text = item.Num.ToString();
         }
     }

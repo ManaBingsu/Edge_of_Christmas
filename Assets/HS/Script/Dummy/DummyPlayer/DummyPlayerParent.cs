@@ -9,7 +9,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     public enum State { Idle, Walk, CC };
     public State state;
-    Coroutine stateCoroutine;
+    protected Coroutine stateCoroutine;
 
     public bool isRage;
 
@@ -18,22 +18,22 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     // 분노 시, 혹은 이벤트로 인한 보너스스피드
     [SerializeField]
-    private float bonusSpeed;
+    protected float bonusSpeed;
 
     [SerializeField]
-    private bool isGrounded;
+    protected bool isGrounded;
 
-    Coroutine knockBackCoroutine;
-    Coroutine stunCoroutine;
+    protected Coroutine knockBackCoroutine;
+    protected Coroutine stunCoroutine;
     // 행동했을 때 마커 반짝반짝
-    Coroutine markerCoroutine;
+    protected Coroutine markerCoroutine;
 
     [SerializeField]
-    private Color onColor;
+    protected Color onColor;
     [SerializeField]
-    private Color offColor;
+    protected Color offColor;
 
-    private Rigidbody2D rb2D;
+    protected Rigidbody2D rb2D;
 
     public enum Direction { left = -1, right = 1 };
     public Direction direction;
@@ -44,30 +44,37 @@ public abstract class DummyPlayerParent : MonoBehaviour
     public DummyInventory inventory;
 
     // 플레이어 애니메이터
-    private Animator anim;
+    protected Animator anim;
     // 플레이어 렌더러
-    private SpriteRenderer sprRend;
+    protected SpriteRenderer sprRend;
+
+    protected float originMoveSpeed;
 
     [Space(10)]
     [Header("Must Reference")]
     [SerializeField]
-    private SpriteRenderer markerSpr;
+    protected SpriteRenderer markerSpr;
     // 분노 이펙트 오브젝트
     [SerializeField]
-    private GameObject rageFire;
+    protected GameObject rageFire;
     // 이펙트 애니메이터
     [SerializeField]
-    private Animator efcAnimator;
-
+    protected Animator efcAnimator;
     // 아이템 리스트 참조
     [SerializeField]
-    private DummyItemList itemList;
+    protected DummyItemList itemList;
 
     private void OnTriggerStay2D(Collider2D col)
     {
         if(col.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
+            anim.SetBool("isJump", false);
+        }
+
+        if(col.gameObject.CompareTag("Player"))
+        {
+
         }
     }
 
@@ -76,6 +83,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         if (col.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
+            anim.SetBool("isJump", true);
         }
     }
 
@@ -106,7 +114,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
             }
             item.gameObject.SetActive(false);
         }
-
+        /*
         if (col.gameObject.CompareTag("Player"))
         {
             DummyPlayerParent player = col.gameObject.GetComponent<DummyPlayerParent>();
@@ -118,6 +126,30 @@ public abstract class DummyPlayerParent : MonoBehaviour
                     knockBackCoroutine = null;
                 knockBackCoroutine = StartCoroutine(KnockBack(player.direction, player.playerData.RagePowerTime, player.playerData.RagePower));
             }
+        }*/
+    }
+
+    private void OnCollisionStay2D(Collision2D col)
+    {
+        if (col.gameObject.CompareTag("Player"))
+        {
+            DummyPlayerParent player = col.gameObject.GetComponent<DummyPlayerParent>();
+
+            if (player.playerData.team != playerData.team && player.isRage && player.transform.position.y < transform.position.y + 0.25f)
+            {
+                state = State.CC;
+                if (knockBackCoroutine != null)
+                    knockBackCoroutine = null;
+                knockBackCoroutine = StartCoroutine(KnockBack(player.direction, player.playerData.RagePowerTime, player.playerData.RagePower));
+            }
+            else
+            {
+                state = State.CC;
+                if (knockBackCoroutine != null)
+                    knockBackCoroutine = null;
+
+                knockBackCoroutine = StartCoroutine(KnockBack((Direction)((int)direction * -1f), 0.05f, playerData.MoveSpeed * 2f));
+            }
         }
     }
 
@@ -128,6 +160,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         anim = GetComponent<Animator>();
         sprRend = GetComponent<SpriteRenderer>();
         bonusSpeed = 1;
+        originMoveSpeed = playerData.MoveSpeed;
     }
 
     protected virtual void Start()
@@ -298,7 +331,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         }
     }
 
-    IEnumerator KnockBack(Direction direction, float ccTime, float ccPower)
+    protected virtual IEnumerator KnockBack(Direction direction, float ccTime, float ccPower)
     {
         if (isKnockBack)
             yield break;
@@ -318,7 +351,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         knockBackCoroutine = null;
     }
 
-    IEnumerator Stun(float ccTime)
+    protected virtual IEnumerator Stun(float ccTime)
     {
         // 분노모드 취소
         playerData.Rage -= 999;
@@ -335,7 +368,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         stunCoroutine = null;
     }
 
-    IEnumerator ChargingRage()
+    protected IEnumerator ChargingRage()
     {
         WaitForSeconds waitTime = new WaitForSeconds(1.0f);
         while(true)
@@ -401,7 +434,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         }
     }
 
-    IEnumerator DisplayMarker()
+    protected IEnumerator DisplayMarker()
     {
         markerSpr.color = onColor;
         yield return new WaitForSeconds(0.25f);
@@ -409,7 +442,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         
     }
 
-    IEnumerator RageMode()
+    protected IEnumerator RageMode()
     {
         bonusSpeed *= playerData.RageBonusSpeed;
         rageFire.SetActive(true);
@@ -431,7 +464,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         bonusSpeed /= playerData.RageBonusSpeed;
     }
 
-    IEnumerator KnockBackDelay()
+    protected IEnumerator KnockBackDelay()
     {
         isKnockBack = true;
         yield return new WaitForSeconds(0.2f);

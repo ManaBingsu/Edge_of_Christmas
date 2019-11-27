@@ -9,6 +9,9 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
+        if (BattleManager.battleManager.gameState != BattleManager.GameState.Processing)
+            return;
+
         int i = 0;
         while (i < Input.touchCount)
         {

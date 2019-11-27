@@ -22,25 +22,23 @@ public class DummyItemFlying : MonoBehaviour
 
     private SpriteRenderer sprRend;
     private List<Sprite> sprList;
-    /*
+    private Animator efcObj;
+    
     private void OnTriggerEnter2D(Collider2D col)
     {
-        if(col.CompareTag("Player"))
+        if(col.CompareTag("FlyingItem"))
         {
-            DummyPlayerParent player = col.GetComponent<DummyPlayerParent>();
-            if(player.playerData.team != team)
+            if (state != State.Die)
             {
-                if(state != State.Die)
-                {
-                    state = State.Die;
-                }
+                state = State.Die;
             }
         }     
-    }*/
+    }
 
     private void Awake()
     {
         sprRend = GetComponent<SpriteRenderer>();
+        efcObj = transform.GetChild(0).GetComponent<Animator>();
     }
 
     IEnumerator FSM()
@@ -80,18 +78,31 @@ public class DummyItemFlying : MonoBehaviour
     void Flying()
     {
         transform.position += Vector3.right * itemData.MoveSpeed * (int)direction * Time.deltaTime;
+        transform.Rotate(Vector3.forward, itemData.MoveSpeed * (int)direction * -1);
     }
 
     IEnumerator Die()
     {
         float time = 0f;
-        while(time < dieTime)
+        if (itemData.Index == 0)
         {
+            sprRend.sprite = null;
+            efcObj.gameObject.SetActive(true);
+        }
+
+        while (time < dieTime)
+        {
+            // 캔디
+            if(itemData.Index == 1)
+            {
+                transform.position += (Vector3.right * (int)direction * itemData.MoveSpeed / 2f + Vector3.down * (itemData.MoveSpeed + time * 2f)) * Time.deltaTime;
+                transform.Rotate(Vector3.forward, itemData.MoveSpeed * (int)direction * -1 * 0.5f);
+            }
             time += Time.deltaTime;
             // 터지는 애니메이션 발동
             yield return null;
         }
-
+        efcObj.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
 }

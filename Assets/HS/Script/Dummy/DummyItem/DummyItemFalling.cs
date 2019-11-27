@@ -30,6 +30,7 @@ public class DummyItemFalling : MonoBehaviour
     public void InitializeSetting()
     {
         sprRend.sprite = itemData.Icon;
+        transform.rotation = Quaternion.Euler(0, 0, Random.Range(-70, 70));
     }
 
     private void OnEnable()
