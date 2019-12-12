@@ -6,8 +6,10 @@ using UnityEngine.SceneManagement;
 
 public class UIGameOverPanel : MonoBehaviour
 {
+    private int currentPanelIndex;
+
     [SerializeField]
-    private GameObject panel;
+    private List<GameObject> panelList;
 
     [SerializeField]
     private Transform[] placeList = new Transform[2];
@@ -37,18 +39,29 @@ public class UIGameOverPanel : MonoBehaviour
 
     private Coroutine onOffCoroutine;
 
+    public GameObject uiOption;
+
     public void OnGameOverPanel()
     {
-        onOffCoroutine = StartCoroutine(OnOffPanel(true));
+        onOffCoroutine = StartCoroutine(OnOffPanel(true, 0));
     }
+
+    public void ClickContinue()
+    {
+        Time.timeScale = 1f;
+        uiOption.gameObject.SetActive(false);
+    }
+
 
     public void ClickRetry()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("HSScene");
     }
 
     public void ClickLobby()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("HSLobbyScene");
     }
 
@@ -62,17 +75,17 @@ public class UIGameOverPanel : MonoBehaviour
         winnerText.text = winnerTeam + "\r\n'" + data.SkinName + "'\r\n승리!";
     }
 
-    public IEnumerator OnOffPanel(bool isOn)
+    public IEnumerator OnOffPanel(bool isOn, int index)
     {
         if (isOn)
         {
             touchLimitImage.gameObject.SetActive(true);
-            panel.SetActive(true);
+            panelList[index].SetActive(true);
         }
 
 
         Color currentColor = touchLimitImage.color;
-        Vector2 currentPos = panel.transform.position;
+        Vector2 currentPos = panelList[index].transform.position;
 
         Color targetColor;
         Vector2 endPos;
@@ -94,7 +107,7 @@ public class UIGameOverPanel : MonoBehaviour
             progress += Time.deltaTime * speed;
 
             touchLimitImage.color = Color.Lerp(currentColor, targetColor, progress);
-            panel.transform.position = Vector2.Lerp(currentPos, endPos, moveCurve.Evaluate(progress));
+            panelList[index].transform.position = Vector2.Lerp(currentPos, endPos, moveCurve.Evaluate(progress));
 
             yield return null;
         }
@@ -102,7 +115,7 @@ public class UIGameOverPanel : MonoBehaviour
         if (!isOn)
         {
             touchLimitImage.gameObject.SetActive(false);
-            panel.SetActive(false);
+            panelList[index].SetActive(false);
         }
     }
 }

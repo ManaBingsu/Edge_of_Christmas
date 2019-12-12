@@ -15,12 +15,14 @@ public class UISceneMove : MonoBehaviour
     {
         if (startCoroutine == null)
             startCoroutine = StartCoroutine(LoadInGameScene("HSScene"));
+        SoundManager.sm.EfcClickButton();
     }
 
     public void ClickLobby()
     {
         if (startCoroutine == null)
             startCoroutine = StartCoroutine(LoadInGameScene("HSLobbyScene"));
+        SoundManager.sm.EfcClickButton();
     }
 
     IEnumerator LoadInGameScene(string sceneName)

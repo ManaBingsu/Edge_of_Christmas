@@ -50,12 +50,14 @@ public class UIPlayerSkin : MonoBehaviour
     {
         bool isOn = skinInfoArray[0].activeSelf ? false : true;
         skinInfoArray[0].SetActive(isOn);
+        SoundManager.sm.EfcClickButton();
     }
 
     public void ClickRightSkinInfo()
     {
         bool isOn = skinInfoArray[1].activeSelf ? false : true;
         skinInfoArray[1].SetActive(isOn);
+        SoundManager.sm.EfcClickButton();
     }
 
     public void SetSkinIndex(int index, bool isUp)
@@ -65,6 +67,7 @@ public class UIPlayerSkin : MonoBehaviour
         else
             key[index] = key[index] - 1 < 0 ? skinData.Count - 1 : key[index] - 1;
 
+        SoundManager.sm.EfcClickButton();
         skinIconUI[index].index = skinData[key[index]].Index;
         skinIconUI[index].story.text = skinData[key[index]].Story;
         skinIconUI[index].abilityScript.text = skinData[key[index]].AbilityScript;
@@ -77,7 +80,7 @@ public class UIPlayerSkin : MonoBehaviour
 
     public void StartGame()
     {
-        for(int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             DummySystemManager.systemManager.playerSkinIndexArray[i] = 0;
         }

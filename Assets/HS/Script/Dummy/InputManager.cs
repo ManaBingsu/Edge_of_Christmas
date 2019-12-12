@@ -5,6 +5,9 @@ using UnityEngine.EventSystems;
 
 public class InputManager : MonoBehaviour
 {
+    bool isRightLimit;
+    bool isLeftLimit;
+
     public List<touchLocation> touches = new List<touchLocation>();
 
     private void Update()
@@ -16,10 +19,15 @@ public class InputManager : MonoBehaviour
         while (i < Input.touchCount)
         {
             if (EventSystem.current.IsPointerOverGameObject(i) == true)
-                return;
+            {
+                ++i;
+                continue;
+            }
+
 
             Touch t = Input.GetTouch(i);
-            switch(t.phase)
+
+            switch (t.phase)
             {
                 case TouchPhase.Began:
                     int index = t.position.x < Screen.width / 2 ? 0 : 1;
@@ -62,7 +70,7 @@ public class InputManager : MonoBehaviour
                     float rad = Quaternion.FromToRotation(Vector3.up, ddir).eulerAngles.z;
                     float distance = Vector2.Distance(movedTouch.startPos, movedTouch.endPos);
 
-                    if(movedTouch.timer > 0.03f && movedTouch.isAct == false)
+                    if(movedTouch.timer > 0.035f && movedTouch.isAct == false)
                     {
                         movedTouch.isAct = true;
                         if (rad > 315 || rad < 45)

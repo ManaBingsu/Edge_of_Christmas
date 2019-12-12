@@ -23,13 +23,19 @@ public class DummyItemFlying : MonoBehaviour
     private SpriteRenderer sprRend;
     private List<Sprite> sprList;
     private Animator efcObj;
+
+    bool isCandyCollideWithSnow;
     
     private void OnTriggerEnter2D(Collider2D col)
     {
         if(col.CompareTag("FlyingItem"))
         {
-            if (state != State.Die)
+            DummyItemFlying item = col.GetComponent<DummyItemFlying>();
+
+            if (item.team != team && state != State.Die)
             {
+                if (item.itemData.Index == 0)
+                    isCandyCollideWithSnow = true;
                 state = State.Die;
             }
         }     
@@ -83,25 +89,36 @@ public class DummyItemFlying : MonoBehaviour
 
     IEnumerator Die()
     {
-        float time = 0f;
+        // 아이템에 따른 처리
         if (itemData.Index == 0)
         {
+            SoundManager.sm.EfcHitSnow();
             sprRend.sprite = null;
             efcObj.gameObject.SetActive(true);
         }
+        else if(itemData.Index == 1)
+        {
+            SoundManager.sm.EfcHitCandy();
+        }
 
+        float candyDir = 1;
+        if (isCandyCollideWithSnow)
+            candyDir = -1;
+
+        float time = 0f;
         while (time < dieTime)
         {
             // 캔디
             if(itemData.Index == 1)
             {
-                transform.position += (Vector3.right * (int)direction * itemData.MoveSpeed / 2f + Vector3.down * (itemData.MoveSpeed + time * 2f)) * Time.deltaTime;
-                transform.Rotate(Vector3.forward, itemData.MoveSpeed * (int)direction * -1 * 0.5f);
+                transform.position += (Vector3.right * (int)direction * -1 * candyDir * itemData.MoveSpeed / 2f + Vector3.down * (itemData.MoveSpeed + time * 2f)) * Time.deltaTime;
+                transform.Rotate(Vector3.forward, itemData.MoveSpeed * (int)direction * candyDir * 0.5f);
             }
             time += Time.deltaTime;
             // 터지는 애니메이션 발동
             yield return null;
         }
+        isCandyCollideWithSnow = false;
         efcObj.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }

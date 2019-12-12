@@ -29,12 +29,42 @@ public class UIPanelManager : MonoBehaviour
 
     private Coroutine onOffCoroutine;
 
+    private int backgroundIndex;
+    private Coroutine eggCoroutine;
+    public Image backGroundImage;
+    public Sprite[] backGrouondImages = new Sprite[2];
+
+    // 옵션
+    public UIOption uiOption;
+
+    private void Awake()
+    {
+        
+    }
+
+    private void Start()
+    {
+        uiOption.SaveParticle = PlayerPrefs.GetInt("IsParticle", 1);
+    }
+
+    private void Update()
+    {
+        if (Application.platform != RuntimePlatform.IPhonePlayer)
+        {
+            if (Input.GetKey(KeyCode.Escape))
+            {
+                OffCurrentPanel();
+            }
+        }
+    }
+
     public void OnGameInfoPanel()
     {
         if (onOffCoroutine != null)
             StopCoroutine(onOffCoroutine);
 
         onOffCoroutine = StartCoroutine(OnOffPanel(0, true));
+        SoundManager.sm.EfcClickButton();
     }
     public void OnStoryPanel()
     {
@@ -42,6 +72,7 @@ public class UIPanelManager : MonoBehaviour
             StopCoroutine(onOffCoroutine);
 
         onOffCoroutine = StartCoroutine(OnOffPanel(1, true));
+        SoundManager.sm.EfcClickButton();
     }
     public void OnPlayerSkinPanel()
     {
@@ -49,6 +80,50 @@ public class UIPanelManager : MonoBehaviour
             StopCoroutine(onOffCoroutine);
 
         onOffCoroutine = StartCoroutine(OnOffPanel(2, true));
+        SoundManager.sm.EfcClickButton();
+    }
+
+    public void OnOptionPanel()
+    {
+        if (onOffCoroutine != null)
+            StopCoroutine(onOffCoroutine);
+
+        onOffCoroutine = StartCoroutine(OnOffPanel(3, true));
+        SoundManager.sm.EfcClickButton();
+    }
+
+    public void OnCreditPanel()
+    {
+        if (onOffCoroutine != null)
+            StopCoroutine(onOffCoroutine);
+
+        onOffCoroutine = StartCoroutine(OnOffPanel(4, true));
+        SoundManager.sm.EfcClickButton();
+    }
+
+    public void DownLogoSpecialBackground()
+    {
+        if (eggCoroutine != null)
+            StopCoroutine(eggCoroutine);
+        eggCoroutine = StartCoroutine(Timer());
+    }
+
+    public void UpLogoSpecialBackground()
+    {
+        if (eggCoroutine != null)
+            StopCoroutine(eggCoroutine);
+    }
+
+    IEnumerator Timer()
+    {
+        int time = 0;
+        while (time <= 2.0f)
+        {
+            time++;
+            yield return new WaitForSeconds(1.0f);
+        }
+        backgroundIndex = backgroundIndex == 0 ? 1 : 0;
+        backGroundImage.sprite = backGrouondImages[backgroundIndex];
     }
 
     public void OffCurrentPanel()

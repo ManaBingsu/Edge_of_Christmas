@@ -19,8 +19,6 @@ public class DummySystemManager : MonoBehaviour
     // 사용할 아이템 모아둠
     public List<DummyItemParent> itemList;
     [Header("Value")]
-
-    [Header("Manager Reference")]
     public DummyItemGenerator itemGenerator;
 
     private void Awake()

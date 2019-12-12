@@ -12,7 +12,7 @@ public class DummyPlayerHyunHo : DummyPlayerParent
         StartCoroutine(KnockBackDelay());
 
         rb2D.velocity = new Vector2(0f, rb2D.velocity.y);
-        rb2D.AddForce((Vector2.right * (int)direction + Vector2.up).normalized * (ccPower * 0.5f), ForceMode2D.Impulse);
+        rb2D.AddForce((Vector2.right * (int)direction + Vector2.up).normalized * (ccPower * 0.7f), ForceMode2D.Impulse);
         float time = 0f;
         while (time < ccTime)
         {
@@ -31,7 +31,7 @@ public class DummyPlayerHyunHo : DummyPlayerParent
         efcAnimator.gameObject.SetActive(true);
 
         float time = 0f;
-        while (time < ccTime * 0.5f)
+        while (time < ccTime * 0.7f)
         {
             time += Time.deltaTime;
 

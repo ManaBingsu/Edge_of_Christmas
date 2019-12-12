@@ -7,8 +7,8 @@ public class DummyPlayerData : ScriptableObject
 {
     public delegate void TeamEventHandler(Team t);
     public event TeamEventHandler EvGift;
-    public delegate void EventHandler();
     public event TeamEventHandler EvVictory;
+    public delegate void EventHandler();
 
     public enum Team { Left = -1, Right = 1 }
     public Team team;
@@ -29,6 +29,12 @@ public class DummyPlayerData : ScriptableObject
                 return;
             }
 
+            // 환호성 지르기
+            if (value >= 4)
+            {
+                AudienceManager.audManager.sState = AudienceManager.State.Cheer;
+            }
+
             // 승리 시
             if (value >= maxGift)
             {
@@ -42,6 +48,7 @@ public class DummyPlayerData : ScriptableObject
                 EvVictory?.Invoke(team);
                 return;
             }
+
             gift = value;
             EvGift?.Invoke(team);
 

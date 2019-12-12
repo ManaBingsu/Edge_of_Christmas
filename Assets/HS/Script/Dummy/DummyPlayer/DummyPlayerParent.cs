@@ -10,8 +10,11 @@ public abstract class DummyPlayerParent : MonoBehaviour
     public enum State { Idle, Walk, CC };
     public State state;
     protected Coroutine stateCoroutine;
-
+    // 분노 상태
     public bool isRage;
+
+    // 아이템 버튼 누를 때 입력 방지
+    public bool isInputBan;
 
     //넉백 딜레이
     public bool isKnockBack;
@@ -64,6 +67,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
     [SerializeField]
     protected DummyItemList itemList;
 
+
     private void OnTriggerStay2D(Collider2D col)
     {
         if(col.gameObject.CompareTag("Ground"))
@@ -107,6 +111,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
             if (item.itemData.type == DummyItemData.Type.Gift)
             {
                 playerData.Gift += (int)item.itemData.CCPower;
+                SoundManager.sm.EfcGetItem();
             }
             else if (item.itemData.type == DummyItemData.Type.Throwing)
             {
@@ -114,19 +119,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
             }
             item.gameObject.SetActive(false);
         }
-        /*
-        if (col.gameObject.CompareTag("Player"))
-        {
-            DummyPlayerParent player = col.gameObject.GetComponent<DummyPlayerParent>();
 
-            if (player.playerData.team != playerData.team && player.isRage && player.transform.position.y < transform.position.y + 0.25f)
-            {
-                state = State.CC;
-                if (knockBackCoroutine != null)
-                    knockBackCoroutine = null;
-                knockBackCoroutine = StartCoroutine(KnockBack(player.direction, player.playerData.RagePowerTime, player.playerData.RagePower));
-            }
-        }*/
     }
 
     private void OnCollisionStay2D(Collision2D col)
@@ -148,7 +141,9 @@ public abstract class DummyPlayerParent : MonoBehaviour
                 if (knockBackCoroutine != null)
                     knockBackCoroutine = null;
 
-                knockBackCoroutine = StartCoroutine(KnockBack((Direction)((int)direction * -1f), 0.05f, playerData.MoveSpeed * 2f));
+                Direction dir = player.transform.position.x > transform.position.x ? (Direction)(-1) : (Direction)(1);
+
+                knockBackCoroutine = StartCoroutine(KnockBack(dir, 0.05f, playerData.MoveSpeed * 2f));
             }
         }
     }
@@ -182,6 +177,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
             if (BattleManager.battleManager.gameState != BattleManager.GameState.GameOver)
             {
                 BattleManager.battleManager.gameState = BattleManager.GameState.GameOver;
+                AudienceManager.audManager.sState = AudienceManager.State.Angry;
                 BattleManager.battleManager.winnerIndex = (int)playerData.team == -1 ? 1 : 0;
             }
             gameObject.SetActive(false);
@@ -190,6 +186,9 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     public void UseItem()
     {
+        if (BattleManager.battleManager.gameState != BattleManager.GameState.Processing)
+            return;
+
         if (isRage)
             return;
 
@@ -203,6 +202,9 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     public void GetItem(int idx)
     {
+        if (BattleManager.battleManager.gameState != BattleManager.GameState.Processing)
+            return;
+        SoundManager.sm.EfcGetItem();
         inventory.MyItem = itemList.itemList[idx].item;
         // 관련 UI 이벤트 발생
         EvGetItem?.Invoke(playerData, inventory);
@@ -256,7 +258,10 @@ public abstract class DummyPlayerParent : MonoBehaviour
         {
             if (knockBackCoroutine == null && stunCoroutine == null)
             {
-                state = State.Walk;
+                if (BattleManager.battleManager.gameState == BattleManager.GameState.GameOver)
+                    state = State.Idle;
+                else
+                    state = State.Walk;
                 yield break;
             }
             yield return null;
@@ -285,6 +290,11 @@ public abstract class DummyPlayerParent : MonoBehaviour
                     {
                         UseItem();
                     }
+
+                    if (Input.GetKeyDown(KeyCode.A))
+                    {
+                        Rage();
+                    }
                 }
                 else if (playerData.team == DummyPlayerData.Team.Right)
                 {
@@ -301,6 +311,11 @@ public abstract class DummyPlayerParent : MonoBehaviour
                     if (Input.GetKeyDown(KeyCode.Period))
                     {
                         UseItem();
+                    }
+
+                    if (Input.GetKeyDown(KeyCode.Quote))
+                    {
+                        Rage();
                     }
                 }
             }
@@ -335,6 +350,8 @@ public abstract class DummyPlayerParent : MonoBehaviour
     {
         if (isKnockBack)
             yield break;
+        //이펙트 뿌리기
+        KnockBackEffect.kbEffect.EmitStarEffect((int)playerData.team, (int)direction);
 
         StartCoroutine(KnockBackDelay());
 
@@ -388,6 +405,9 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     public void ChangeDirection()
     {
+        if (isInputBan)
+            return;
+
         if (markerCoroutine != null)
             StopCoroutine(markerCoroutine);
         markerCoroutine = StartCoroutine(DisplayMarker());
@@ -402,6 +422,9 @@ public abstract class DummyPlayerParent : MonoBehaviour
 
     public void Jump()
     {
+        if (isInputBan)
+            return;
+
         if (state == State.Idle)
             return;
 
@@ -430,6 +453,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
         if(!isRage && playerData.Rage == playerData.MaxRage)
         {
             isRage = true;
+            AudienceManager.audManager.sState = AudienceManager.State.Cheer;
             StartCoroutine(RageMode());
         }
     }
@@ -446,7 +470,6 @@ public abstract class DummyPlayerParent : MonoBehaviour
     {
         bonusSpeed *= playerData.RageBonusSpeed;
         rageFire.SetActive(true);
-        Debug.Log(rageFire.activeSelf);
         float time = 0f;
 
         while (playerData.Rage > 0)
@@ -467,7 +490,7 @@ public abstract class DummyPlayerParent : MonoBehaviour
     protected IEnumerator KnockBackDelay()
     {
         isKnockBack = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.16f);
         isKnockBack = false;
     }
 }
