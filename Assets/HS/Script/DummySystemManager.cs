@@ -30,6 +30,6 @@ public class DummySystemManager : MonoBehaviour
 
         DontDestroyOnLoad(this.gameObject);
 
-        Screen.SetResolution(1280, 720, true);
+        Screen.SetResolution(1280, 720, false);
     }
 }
